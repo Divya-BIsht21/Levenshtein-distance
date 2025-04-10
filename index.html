@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Levenshtein Distance Calculator by -Divya</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            margin: 0 auto;
+            max-width: 800px;
+        }
+
+        .inputs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 2em;
+
+        }
+
+        input {
+            /*  source:  https://copy-paste-css.com/form-input-text */
+            color: rgba(0, 0, 0, .87);
+            border-bottom-color: rgba(0, 0, 0, .42);
+            font-size: 1rem;
+            font-weight: 400;
+            letter-spacing: .009375em;
+            box-sizing: border-box;
+            width: 29%;
+            padding: 20px 16px;
+            border: none;
+            border-bottom: 1px solid;
+            border-radius: 4px 4px 0 0;
+            height: 2px;
+
+            :hover {
+                border-bottom-color: rgba(0, 0, 0, .87);
+                background: #ececec;
+            }
+
+        }
+
+        button {
+            font-size: 1rem;
+            font-weight: 400;
+            padding: 15px;
+            cursor: pointer;
+            background: #8a57d6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            margin: 0 auto;
+            display: block;
+
+        }
+
+        button:hover {
+            background: #7a2fec;
+        }
+
+        #matrix {
+            margin-top: 20px;
+            overflow-x: auto;
+        }
+
+        .op {
+            font-size: 2rem;
+            font-weight: bolder;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Levenshtein Distance Calculator</h1>
+        <div class="inputs">
+            <label for="word1">First Word:</label>
+            <input type="text" id="word1" value="Levenshtein">
+
+            <label for="word2">Second Word:</label>
+            <input type="text" id="word2" value="Lavenstaein">
+        </div>
+        <button onclick="calculateDistance()">Calculate Distance</button>
+        <div class="op">Output:</div>
+        <div id="result"></div>
+        <div id="matrix"></div>
+    </div>
+
+    <script>
+        function calculateDistance() {
+            const word1 = document.getElementById('word1').value;
+            const word2 = document.getElementById('word2').value;
+            const { distance, matrix } = levenshteinDistance(word1, word2);
+
+            // Display the result
+            document.getElementById('result').innerHTML = `
+                <h3>Levenshtein Distance: ${distance}</h3>
+                <p><strong>${word1}</strong> → <strong>${word2}</strong></p>
+            `;
+
+            // Display the matrix
+            renderMatrix(matrix, word1, word2);
+        }
+
+        function levenshteinDistance(word1, word2) {
+            const m = word1.length;
+            const n = word2.length;
+            const dp = Array.from({ length: n + 1 }, () => Array(m + 1).fill(0));
+
+            // Initialize first row and column
+            for (let j = 0; j <= m; j++) dp[0][j] = j;
+            for (let i = 0; i <= n; i++) dp[i][0] = i;
+
+            // Fill the DP table
+            for (let i = 1; i <= n; i++) {
+                for (let j = 1; j <= m; j++) {
+                    if (word2[i - 1] === word1[j - 1]) {
+                        dp[i][j] = dp[i - 1][j - 1];
+                    } else {
+                        dp[i][j] = 1 + Math.min(
+                            dp[i][j - 1],  // Insert
+                            dp[i - 1][j],   // Delete
+                            dp[i - 1][j - 1] // Replace
+                        );
+                    }
+                }
+            }
+
+            return { distance: dp[n][m], matrix: dp };
+        }
+        window.onload = calculateDistance;
+    </script>
+</body>
+
+</html>
